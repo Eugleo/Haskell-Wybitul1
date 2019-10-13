@@ -1,3 +1,5 @@
+{-# LANGUAGE RankNTypes #-}
+
 module Conway
   ( step
   , conwaysRule
@@ -5,8 +7,9 @@ module Conway
   , mkGrid
   ) where
 
-import Data.List (intercalate)
-import Store     (Store (..), experiment, extend, extract)
+import Data.List            (intercalate)
+import Data.MemoCombinators (Memo (..), integral, pair)
+import Store                (Store (..), experiment, extend, extract)
 
 type Coord = (Int, Int)
 
@@ -33,8 +36,8 @@ neighbours w h (a, b) =
 between :: Ord a => a -> (a, a) -> Bool
 between x (y, z) = y <= x && x <= z
 
-step :: Rule s -> Store s Bool -> Store s Bool
-step = flip extend
+step :: Rule Coord -> Store Coord Bool -> Store Coord Bool
+step rule = flip extend rule . memoize
 
 render :: Int -> Int -> Grid -> String
 render w h = intercalate "\n" . map draw . chunksOf w . experiment (const cells)
@@ -46,6 +49,9 @@ render w h = intercalate "\n" . map draw . chunksOf w . experiment (const cells)
            if x
              then 'X'
              else ' ')
+
+memoize :: Store Coord a -> Store Coord a
+memoize (Store f s) = Store (pair integral integral f) s
 
 chunksOf :: Int -> [a] -> [[a]]
 chunksOf _ [] = []
