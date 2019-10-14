@@ -42,7 +42,7 @@ app =
     }
 
 initialState :: GameObject
-initialState = GO (30, 30) $ mkGrid [(0, 0), (1, 0), (2, 0), (0, 3), (0, 4)]
+initialState = GO (30, 30) $ mkGrid []
 
 main :: IO ()
 main = void $ defaultMain app initialState
