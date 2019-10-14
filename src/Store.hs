@@ -21,3 +21,9 @@ instance Comonad (Store s) where
 
 experiment :: Functor f => (s -> f s) -> Store s a -> f a
 experiment w (Store f s) = f <$> w s
+
+restore :: Store s a -> s
+restore (Store f s) = s
+
+seek :: s -> Store s a -> Store s a
+seek s (Store f _) = Store f s
