@@ -9,7 +9,7 @@ module Conway
 
 import Data.List (intercalate)
 import Store     (Store (..), experiment, extend, extract)
-import Utils     (between, chunksOf, memoize)
+import Utils     (between, chunksOf, memoize, wrapAround)
 
 type Coord = (Int, Int)
 
@@ -18,7 +18,7 @@ type Grid = Store Coord Bool
 type Rule = Grid -> Bool
 
 toggleCellRule :: Int -> Int -> Rule
-toggleCellRule x y g@(Store f s) =
+toggleCellRule x y g@(Store _ s) =
   if s == (x, y)
     then not isAlive
     else isAlive
@@ -35,11 +35,10 @@ conwaysRule w h g = neigbourCount == 3 || (isAlive && neigbourCount == 2)
 neighbours :: Int -> Int -> Coord -> [Coord]
 neighbours w h (a, b) =
   map
-    (wrap . add (a, b))
+    (wrapAround (w, h) . add (a, b))
     [(x, y) | x <- [-1, 0, 1], y <- [-1, 0, 1], (x, y) /= (0, 0)]
   where
     add (a, b) (x, y) = (x + a, y + b)
-    wrap (x, y) = (x `mod` w, y `mod` h)
 
 step :: Rule -> Grid -> Grid
 step rule = flip extend rule . memoize

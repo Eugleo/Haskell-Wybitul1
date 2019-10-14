@@ -14,3 +14,6 @@ chunksOf n xs = take n xs : chunksOf n (drop n xs)
 
 between :: Ord a => a -> (a, a) -> Bool
 between x (y, z) = y <= x && x <= z
+
+wrapAround :: (Int, Int) -> (Int, Int) -> (Int, Int)
+wrapAround (w, h) (x, y) = (x `mod` w, y `mod` h)

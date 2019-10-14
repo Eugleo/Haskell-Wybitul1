@@ -2,14 +2,13 @@
 
 module Main where
 
-import           Brick.AttrMap        (AttrMap, AttrName, attrMap)
+import           Brick.AttrMap        (AttrMap, attrMap)
 import           Brick.Main           (App (..), continue, defaultMain, halt,
                                        resizeOrQuit, showFirstCursor)
 import           Brick.Types          (BrickEvent (VtyEvent), EventM,
                                        Location (..), Next, Padding (..),
                                        Widget)
 import           Brick.Widgets.Border as B
-import           Brick.Widgets.Center as C
 import           Brick.Widgets.Core   (hBox, padAll, padBottom, padLeft,
                                        padLeftRight, padRight, padTop,
                                        padTopBottom, showCursor, str, vBox,
@@ -22,7 +21,7 @@ import           Data.Function        (on)
 import qualified Graphics.Vty         as V
 import           Store                (Store (..), experiment, restore, seek)
 import           System.Environment   (getArgs)
-import           Utils                (chunksOf)
+import           Utils                (chunksOf, wrapAround)
 
 type Grid = Store Coord Bool
 
@@ -58,7 +57,7 @@ drawGrid (GO (w, h) grid) =
    in showCursor () (Location (cx + 1, cy + 1)) $
       B.borderWithLabel (str "Game of Life") $ hBox columns
   where
-    cells -- the lict comp generater [(0, 0), (0, 1), (0, 2) ...], i.e. by column
+    cells -- the list comp generater [(0, 0), (0, 1), (0, 2) ...], i.e. by column
      = experiment (const [(x, y) | x <- [0 .. w - 1], y <- [0 .. h - 1]]) grid
     columns = map (vBox . map drawCell) (chunksOf h cells)
 
@@ -89,6 +88,3 @@ handleEvent (GO window grid) (VtyEvent (V.EvKey V.KUp [])) =
   let (cx, cy) = restore grid
       new = wrapAround window (cx, cy - 1)
    in continue $ GO window (seek new grid)
-
-wrapAround :: (Int, Int) -> (Int, Int) -> (Int, Int)
-wrapAround (w, h) (x, y) = (x `mod` w, y `mod` h)
