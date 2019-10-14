@@ -3,8 +3,8 @@
 module Conway
   ( step
   , conwaysRule
-  , render
   , mkGrid
+  , toggleCellRule
   ) where
 
 import Data.List (intercalate)
@@ -16,6 +16,14 @@ type Coord = (Int, Int)
 type Grid = Store Coord Bool
 
 type Rule = Grid -> Bool
+
+toggleCellRule :: Int -> Int -> Rule
+toggleCellRule x y g@(Store f s) =
+  if s == (x, y)
+    then not isAlive
+    else isAlive
+  where
+    isAlive = extract g
 
 conwaysRule :: Int -> Int -> Rule
 conwaysRule w h g = neigbourCount == 3 || (isAlive && neigbourCount == 2)
@@ -35,17 +43,6 @@ neighbours w h (a, b) =
 
 step :: Rule -> Grid -> Grid
 step rule = flip extend rule . memoize
-
-render :: Int -> Int -> Grid -> String
-render w h = intercalate "\n" . map draw . chunksOf w . experiment (const cells)
-  where
-    cells = [(x, y) | x <- [0 .. w - 1], y <- [0 .. h - 1]]
-    draw =
-      map
-        (\x ->
-           if x
-             then 'X'
-             else ' ')
 
 mkGrid :: [Coord] -> Grid
 mkGrid xs = Store (`elem` xs) (0, 0)

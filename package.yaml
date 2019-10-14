@@ -23,6 +23,7 @@ dependencies:
   - base >= 4.7 && < 5
   - brick
   - data-memocombinators
+  - vty
 
 library:
   source-dirs: src
